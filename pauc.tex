@@ -31,13 +31,13 @@ such that a prediction of $y(\mathbf{x})$ can be made using the function
     \right.
 \end{equation*}
 The discriminating power of a classification rule for a particular value of $s$ can be measured in terms of the "True positive rate"
-\begin{equation} \label{def:tpr}
-    t(s) = P\left(\hat{y}(\mathbf{x},s) = 1 | y(\mathbf{x})=1 \right)
+\begin{equation}
+    t(s) = P\left(\hat{y}(\mathbf{x},s) = 1 | y(\mathbf{x})=1 \right) \label{def:tpr}
 \end{equation}
 and the "False positive rate"
-\begin{equation} \label{def:fpr}
+\begin{equation}
     \begin{array}{lcl}
-    f(s) & = & P\left(\hat{y}(\mathbf{x},s) = 1 | y(\mathbf{x})=0 \right) \\
+    f(s) & = & P\left(\hat{y}(\mathbf{x},s) = 1 | y(\mathbf{x})=0 \right)\label{def:fpr} \\ 
          & = & P\left( h(\mathbf{x}) > s | y(\mathbf{x})=0\right) \\
     \end{array}
 \end{equation}
@@ -84,8 +84,8 @@ That is, as stated at the beginning of this section, AUC is equal to the probabi
 \section{Probabilistic Interpretation of pAUC}
 
 Given a fixed false positive rate threshold $f_0$, the partial AUC is the area under the ROC curve in the region where false positive rates are less than $f_0$.
-\begin{equation} \label{eq:pauc}
-     \textrm{pAUC}(f_0) = \int_0^{f_0} \tau(u)du
+\begin{equation}
+     \textrm{pAUC}(f_0) = \int_0^{f_0} \tau(u)du \label{eq:pauc}
 \end{equation}
 
 This quantity is of interest when a classification test will drive a treatment for which high false positive rates are unacceptable, hence discrimination performance at lower thresholds where false positive rates would be higher is irrelevant and therefore should be ignored.  A frequent example in the literature are medical screening tests, where false positives will drive expensive and potentially harmful medical treatments.  Fraud identification is another example, as false positive rate above a low threshold can drive away legitimate customers unable to complete legitimate transactions.
