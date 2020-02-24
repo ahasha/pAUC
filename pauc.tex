@@ -1,0 +1,116 @@
+\input{settings} % add packages, settings, and declarations in settings.tex
+
+\begin{document}
+
+\lhead{Investigation of partial AUC properties}
+\rhead{Alex Hasha, 2019/11/17}
+\cfoot{\thepage\ of \pageref{LastPage}}
+
+\section{Definitions}
+
+Consider a space $X$ that is divided into two classes. The true classification of $x \in X$ is determined by a true classification function $y$ such that
+\begin{equation*}
+    y(x) = \left\{
+    \begin{array}{ll}
+    0 & x \in \textrm{Class Negative} \\
+    1 & x \in \textrm{Class Positive} \\
+    \end{array}
+    \right.
+\end{equation*}
+We are frequently interested in learning a classifier function
+\begin{equation*}
+    h : X \to [0,1]
+\end{equation*}
+such that a prediction of $y(\mathbf{x})$ can be made using the function
+\begin{equation*}
+    \hat{y}(\mathbf{x}, s) = \left\{
+        \begin{array}{ll}
+            0 & h(\mathbf{x}) \leq s) \\
+            1 & h(\mathbf{x}) > s)
+        \end{array}
+    \right.
+\end{equation*}
+The discriminating power of a classification rule for a particular value of $s$ can be measured in terms of the "True positive rate"
+\begin{equation} \label{def:tpr}
+    t(s) = P\left(\hat{y}(\mathbf{x},s) = 1 | y(\mathbf{x})=1 \right)
+\end{equation}
+and the "False positive rate"
+\begin{equation} \label{def:fpr}
+    \begin{array}{lcl}
+    f(s) & = & P\left(\hat{y}(\mathbf{x},s) = 1 | y(\mathbf{x})=0 \right) \\
+         & = & P\left( h(\mathbf{x}) > s | y(\mathbf{x})=0\right) \\
+    \end{array}
+\end{equation}
+
+The performance of a classification function $h(\mathbf{x}$ is often visualized using the ROC curve, which plots true positive rate $t$ as a function of false positive rate $f$. We will denote the ROC curve as a function by $\tau(f)$
+A summary measure of a classifier's overall discrimination ability, independent of a particular threshold choice, is the Area under the curve, or AUC:
+\begin{equation*}
+    \textrm{AUC} = \int_0^1 \tau(u)du
+\end{equation*}
+Sometimes it can be more useful to look at a specific region of the ROC Curve rather than at the whole curve.  For example, one could focus on the region of the curve with low false positive rate, which is often of prime interest for population screening tests.
+\begin{equation*}
+     \textrm{pAUC}(f_0) = \int_0^{f_0} \tau(u)du
+\end{equation*}
+
+\section{Probabilistic Interpretation of AUC}
+The AUC is equal to the probability that a randomly chosen example from the positive class will have a higher value of $h$ than a randomly chosen example from the negative class.  We can see this as follows:
+
+\begin{equation*}
+    \begin{array}{lcl}
+    \textrm{AUC} & = & \int_0^1 \tau{u}du \\
+                 & = & \int_0^1 P\left(h(\mathbf{x}) > f^{-1}(u) | y(\mathbf{x}) = 1\right) du \\
+    \end{array}
+\end{equation*}
+Transform into an integral over the threshold $s$ with the variable substitution $u = f(s)$.
+\begin{equation*}
+    \textrm{AUC} =  \int_1^0 P\left(h(\mathbf{x}) > f^{-1}( f(s) ) | y(\mathbf{x})=1\right) \frac{\partial f}{\partial s} ds
+\end{equation*}
+
+Because $f(s) = 1-H(s)$ where $H$ is the cumulative distribution function of $h(\mathbf{x})$, it follows that
+
+\begin{equation*}
+\frac{\partial f}{\partial s} = - P\left(h(\mathbf{x}')=s | y(\mathbf{x}' = 0)\right)
+\end{equation*}
+so that
+
+\begin{equation*}
+    \begin{array}{lcl}
+    \textrm{AUC} & = & \int_0^1 P\left(h(\mathbf{x}) > s | y(\mathbf{x})=1\right) P\left(h(\mathbf{x}')=s | y(\mathbf{x}') = 0\right) ds \\
+      & = & P\left(h(\mathbf{x}) > h(\mathbf{x}') | y(\mathbf{x})=1 \ \& \  y(\mathbf{x}') = 0\right) \\
+    \end{array}
+\end{equation*}
+That is, as stated at the beginning of this section, AUC is equal to the probability that a randomly chosen example from the positive class will have a higher value of $h$ than a randomly chosen example from the negative class.
+
+\section{Probabilistic Interpretation of pAUC}
+
+Given a fixed false positive rate threshold $f_0$, the partial AUC is the area under the ROC curve in the region where false positive rates are less than $f_0$.
+\begin{equation} \label{eq:pauc}
+     \textrm{pAUC}(f_0) = \int_0^{f_0} \tau(u)du
+\end{equation}
+
+This quantity is of interest when a classification test will drive a treatment for which high false positive rates are unacceptable, hence discrimination performance at lower thresholds where false positive rates would be higher is irrelevant and therefore should be ignored.  A frequent example in the literature are medical screening tests, where false positives will drive expensive and potentially harmful medical treatments.  Fraud identification is another example, as false positive rate above a low threshold can drive away legitimate customers unable to complete legitimate transactions.
+
+We will see that the partial AUC is equal to $f_0$ times the probability that a randomly chosen example from the positive class will have a higher value of $h$ than a randomly chosen example from the negative class \textit{that would be a false positive} when using the decision threshold $s_0$ that yields a false positive rate $f_0$.
+
+Continue by substituting definition (\ref{def:fpr}) into Equation (\ref{eq:pauc}), noting $s = f^{-1}(u)$
+\begin{equation*}
+\begin{array}{lcl}
+   \textrm{pAUC}(f_0) &=&  \int_0^{f_0} P\left(h(\mathbf{x}) > f^{-1}(u) | y(\mathbf{x}) = 1\right) du \\
+     & = & \int_{f^{-1}(0)}^{f^{-1}(f_0)} P\left( h(\mathbf{x}) > s | y(\mathbf{x}) = 1\right) \frac{\partial f}{\partial s} ds \\
+     & = & \int_1^{s_0} - P\left( h(\mathbf{x}) > s | y(\mathbf{x}) = 1\right)P\left( h(\mathbf{x}') = s | y(\mathbf{x}') = 0\right) ds \\
+     & = & \int_{s_0}^{1} P \left(h(\mathbf{x}) > h(\mathbf{x}') \ \& \ h(\mathbf{x}') = s | y(\mathbf{x}) =1\ \& \ y(\mathbf{x}') = 0\right) ds \\
+\end{array}
+\end{equation*}
+Integrating over $s$ gives
+\begin{equation*}
+    \begin{array}{lcl}
+    \textrm{pAUC}(f_0) & = & P\left(h(\mathbf{x}) > h(\mathbf{x}') \ \&\ h(\mathbf{x}') > s_0 | y(\mathbf{x}) =1\ \& \ y(\mathbf{x}') = 0\right) \\
+    & = & P\left(h(\mathbf{x}')> s_0 | y(\mathbf{x}) =1\ \& \ y(\mathbf{x}') = 0\right) P\left(h(\mathbf{x}) > h(\mathbf{x}') | y(\mathbf{x}) =1\ \& \ y(\mathbf{x}') = 0 \ \& \ h(\mathbf{x}') > s_0\right)\\
+     & = & P\left(h(\mathbf{x}')> s_0 | y(\mathbf{x}') = 0\right) P\left(h(\mathbf{x}) > h(\mathbf{x}') | y(\mathbf{x}) =1\ \& \ y(\mathbf{x}') = 0 \ \& \ h(\mathbf{x}') > s_0\right)\\
+      & = & f_0 P\left(h(\mathbf{x}) > h(\mathbf{x}') | y(\mathbf{x}) =1\ \& \ y(\mathbf{x}') = 0 \ \& \ h(\mathbf{x}') > s_0\right)\\
+    \end{array}
+\end{equation*}
+using the definition of conditional probability.
+
+As stated above, we have shown that the partial AUC is equal to $f_0$ times the probability that a randomly chosen example from the positive class will have a higher value of $h$ than a randomly chosen example from the negative class \textit{that would be a false positive} when using the decision threshold $s_0$ that yields a false positive rate $f_0$.
+\end{document}
